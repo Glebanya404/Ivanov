@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.bumptech.glide.Glide
 import kotlinx.android.synthetic.main.fragment_hot.view.*
 import retrofit2.Call
 import retrofit2.Callback
@@ -25,7 +26,10 @@ class HotFragment : Fragment() {
             Log.d(TAG, "Next button clicked")
             ServerRepository.getRandomGif().enqueue(object : Callback<GifResponse>{
                 override fun onResponse(call: Call<GifResponse>, response: Response<GifResponse>) {
-                    Log.d(TAG, "onResponse: ${response.body()?.previewURL}")
+                    Glide.with(this@HotFragment)
+                        .load(response.body()?.gifURL)
+//                        .centerCrop()
+                        .into(view.fragment__imageView)
                 }
 
                 override fun onFailure(call: Call<GifResponse>, t: Throwable) {

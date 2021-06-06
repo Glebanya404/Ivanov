@@ -45,5 +45,7 @@ class MainActivity : AppCompatActivity() {
         override fun getItem(position: Int): Fragment = fragments[position]
 
         override fun getPageTitle(position: Int): String = fragmentsTitle[position]
+
+
     }
 }
