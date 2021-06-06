@@ -5,16 +5,14 @@ import android.os.Bundle
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
-import androidx.viewpager.widget.PagerAdapter
-import androidx.viewpager2.adapter.FragmentStateAdapter
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
     val TAG = javaClass.canonicalName
 
-    private val hotFragment = HotFragment.newInstance()
-    private val lastFragment = LastFragment.newInstance()
-    private val topFragment = TopFragment.newInstance()
+    private val hotFragment = PostFragment.newInstance()
+    private val hot2Fragment = PostFragment.newInstance()
+    private val hot3Fragment = PostFragment.newInstance()
     private lateinit var viewPagerAdapter: ViewPagerAdapter
 
 
@@ -26,8 +24,8 @@ class MainActivity : AppCompatActivity() {
         tabLayout.setupWithViewPager(viewPager)
         viewPagerAdapter = ViewPagerAdapter(supportFragmentManager)
         viewPagerAdapter.addFragment(hotFragment, "hot")
-        viewPagerAdapter.addFragment(lastFragment, "last")
-        viewPagerAdapter.addFragment(topFragment, "top")
+        viewPagerAdapter.addFragment(hot2Fragment, "last")
+        viewPagerAdapter.addFragment(hot3Fragment, "top")
         viewPager.adapter = viewPagerAdapter
     }
 

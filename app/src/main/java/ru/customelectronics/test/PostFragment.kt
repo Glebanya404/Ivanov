@@ -2,7 +2,6 @@ package ru.customelectronics.test
 
 import android.content.Context
 import android.graphics.drawable.Drawable
-import android.opengl.Visibility
 import android.os.Bundle
 import android.os.Handler
 import androidx.fragment.app.Fragment
@@ -14,18 +13,18 @@ import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
-import kotlinx.android.synthetic.main.fragment_hot.view.*
+import kotlinx.android.synthetic.main.fragment.view.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import ru.customelectronics.test.repository.ServerRepository
 import ru.customelectronics.test.retrofit.GifResponse
 
-class HotFragment : Fragment() {
+class PostFragment : Fragment() {
     private val TAG = javaClass.canonicalName
 
     private val postList = ArrayList<GifResponse>()
-    private var postPosition = -1
+    private var postPosition = 0
     private val handler = Handler()
 
     override fun onAttach(context: Context) {
@@ -37,9 +36,25 @@ class HotFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_hot, container, false)
+        val view = inflater.inflate(R.layout.fragment, container, false)
         view.fragment__next_button.setOnClickListener {
-            getNewGif()
+            postPosition++
+            view.fragment__prev_button.isEnabled = true
+            if(postPosition == postList.size){
+                getNewGif()
+            } else {
+                downloadGif()
+            }
+
+        }
+
+        view.fragment__prev_button.apply {
+            isEnabled = false
+            setOnClickListener {
+                postPosition--
+                downloadGif()
+                isEnabled = postPosition != 0
+            }
         }
         return view
     }
@@ -56,7 +71,6 @@ class HotFragment : Fragment() {
             override fun onResponse(call: Call<GifResponse>, response: Response<GifResponse>) {
                 response.body()?.let { it ->
                     postList.add(it)
-                    postPosition++
                     downloadGif()
                 }
             }
@@ -139,7 +153,7 @@ class HotFragment : Fragment() {
     companion object {
         @JvmStatic
         fun newInstance() =
-            HotFragment().apply {
+            PostFragment().apply {
                 arguments = Bundle().apply {
 
                 }
