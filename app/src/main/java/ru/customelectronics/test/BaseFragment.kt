@@ -14,10 +14,6 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import kotlinx.android.synthetic.main.fragment.view.*
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import ru.customelectronics.test.repository.ServerRepository
 import ru.customelectronics.test.retrofit.GifResponse
 
 abstract class BaseFragment : Fragment() {
@@ -58,7 +54,7 @@ abstract class BaseFragment : Fragment() {
         }
 
         view.fragment__prev_button.apply {
-            if(state == State.LOADING_PREVIEW) {
+            if(state != State.LOADING_PREVIEW) {
                 isEnabled = false
                 setOnClickListener {
                     postPosition--
@@ -90,6 +86,7 @@ abstract class BaseFragment : Fragment() {
         Glide.with(this)
             .load(gif.previewURL)
             .placeholder(background)
+            .error(R.drawable.ic_failed)
             .listener(object : RequestListener<Drawable> {
                 override fun onLoadFailed(
                     e: GlideException?,
@@ -97,7 +94,7 @@ abstract class BaseFragment : Fragment() {
                     target: Target<Drawable>?,
                     isFirstResource: Boolean
                 ): Boolean {
-                    state = State.LOADED
+                    setFailed(gif)
                     return false
                 }
 
@@ -124,6 +121,7 @@ abstract class BaseFragment : Fragment() {
         Glide.with(this)
             .load(gif.gifURL)
             .placeholder(background)
+            .error(R.drawable.ic_failed)
             .listener(object : RequestListener<Drawable> {
                 override fun onLoadFailed(
                     e: GlideException?,
@@ -131,9 +129,7 @@ abstract class BaseFragment : Fragment() {
                     target: Target<Drawable>?,
                     isFirstResource: Boolean
                 ): Boolean {
-                    state = State.LOADED
-                    view?.fragment__progressBar?.visibility = View.INVISIBLE
-                    view?.fragment__gifTitle?.text = "Failed"
+                    setFailed(gif)
                     return false
                 }
 
@@ -151,5 +147,13 @@ abstract class BaseFragment : Fragment() {
 
             })
             .into(view?.fragment__imageView!!)
+    }
+
+    private fun setFailed(gif: GifResponse) {
+        state = State.LOADED
+        view?.fragment__progressBar?.visibility = View.INVISIBLE
+        view?.fragment__gifTitle?.text = "Failed"
+        postList.remove(gif)
+        postPosition--
     }
 }
