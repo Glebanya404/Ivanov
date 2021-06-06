@@ -76,8 +76,11 @@ abstract class BaseFragment : Fragment() {
     abstract fun getNewGif()
 
     fun downloadGif() {
-        val gif = postList[postPosition]
-        downloadGifPreview(gif)
+        if(postPosition >= postList.size){
+            downloadGifPreview(postList.last())
+        } else {
+            downloadGifPreview(postList[postPosition])
+        }
     }
 
     private fun downloadGifPreview(gif: GifResponse) {
