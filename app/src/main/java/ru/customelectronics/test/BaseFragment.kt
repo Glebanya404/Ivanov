@@ -20,12 +20,19 @@ import retrofit2.Response
 import ru.customelectronics.test.repository.ServerRepository
 import ru.customelectronics.test.retrofit.GifResponse
 
-class PostFragment : Fragment() {
+abstract class BaseFragment : Fragment() {
     private val TAG = javaClass.canonicalName
 
-    private val postList = ArrayList<GifResponse>()
+    val postList = ArrayList<GifResponse>()
     private var postPosition = 0
     private val handler = Handler()
+    private var state = State.LOADED
+
+    enum class State{
+        LOADED,
+        LOADING_PREVIEW,
+        LOADING_GIF,
+    }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -38,22 +45,26 @@ class PostFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment, container, false)
         view.fragment__next_button.setOnClickListener {
-            postPosition++
-            view.fragment__prev_button.isEnabled = true
-            if(postPosition == postList.size){
-                getNewGif()
-            } else {
-                downloadGif()
+            if(state != State.LOADING_PREVIEW) {
+                postPosition++
+                view.fragment__prev_button.isEnabled = true
+                if (postPosition >= postList.size) {
+                    getNewGif()
+                } else {
+                    downloadGif()
+                }
             }
 
         }
 
         view.fragment__prev_button.apply {
-            isEnabled = false
-            setOnClickListener {
-                postPosition--
-                downloadGif()
-                isEnabled = postPosition != 0
+            if(state == State.LOADING_PREVIEW) {
+                isEnabled = false
+                setOnClickListener {
+                    postPosition--
+                    downloadGif()
+                    isEnabled = postPosition != 0
+                }
             }
         }
         return view
@@ -66,27 +77,15 @@ class PostFragment : Fragment() {
         }
     }
 
-    private fun getNewGif() {
-        ServerRepository.getRandomGif().enqueue(object : Callback<GifResponse> {
-            override fun onResponse(call: Call<GifResponse>, response: Response<GifResponse>) {
-                response.body()?.let { it ->
-                    postList.add(it)
-                    downloadGif()
-                }
-            }
+    abstract fun getNewGif()
 
-            override fun onFailure(call: Call<GifResponse>, t: Throwable) {
-
-            }
-        })
-    }
-
-    private fun downloadGif() {
+    fun downloadGif() {
         val gif = postList[postPosition]
         downloadGifPreview(gif)
     }
 
     private fun downloadGifPreview(gif: GifResponse) {
+        state = State.LOADING_PREVIEW
         val background = view?.fragment__imageView?.drawable
         Glide.with(this)
             .load(gif.previewURL)
@@ -98,6 +97,7 @@ class PostFragment : Fragment() {
                     target: Target<Drawable>?,
                     isFirstResource: Boolean
                 ): Boolean {
+                    state = State.LOADED
                     return false
                 }
 
@@ -119,6 +119,7 @@ class PostFragment : Fragment() {
     }
 
     private fun downloadGifBody(gif: GifResponse) {
+        state = State.LOADING_GIF
         val background = view?.fragment__imageView?.drawable
         Glide.with(this)
             .load(gif.gifURL)
@@ -130,6 +131,7 @@ class PostFragment : Fragment() {
                     target: Target<Drawable>?,
                     isFirstResource: Boolean
                 ): Boolean {
+                    state = State.LOADED
                     view?.fragment__progressBar?.visibility = View.INVISIBLE
                     view?.fragment__gifTitle?.text = "Failed"
                     return false
@@ -143,21 +145,11 @@ class PostFragment : Fragment() {
                     isFirstResource: Boolean
                 ): Boolean {
                     view?.fragment__progressBar?.visibility = View.INVISIBLE
+                    state = State.LOADED
                     return false
                 }
 
             })
             .into(view?.fragment__imageView!!)
     }
-
-    companion object {
-        @JvmStatic
-        fun newInstance() =
-            PostFragment().apply {
-                arguments = Bundle().apply {
-
-                }
-            }
-    }
-
 }

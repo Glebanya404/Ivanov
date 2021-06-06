@@ -6,13 +6,13 @@
     android:layout_height="match_parent"
     android:padding="32dp"
     android:elevation="3dp"
-    tools:context=".PostFragment">
+    tools:context=".RandomFragment">
 
     <TextView
         android:id="@+id/fragment__gifTitle"
         android:layout_width="match_parent"
         android:layout_height="80dp"
-        android:text="Gif title"
+        tools:text="Gif title"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -29,7 +29,7 @@
             android:id="@+id/fragment__imageView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:src="@drawable/ic_launcher_background"
+            tools:src="@drawable/ic_launcher_background"
 
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
